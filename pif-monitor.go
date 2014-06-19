@@ -26,7 +26,6 @@ func formatDate(t time.Time) string {
 }
 
 func getPeriod(startDate time.Time) (string, string) {
-	timezone, _ := time.LoadLocation("Europe/Moscow")
 	return formatDate(startDate), formatDate(time.Now())
 }
 
@@ -55,14 +54,14 @@ func getJson(url string) (jsn []byte) {
 
 type Quote struct {
 	Date  time.Time
-	Price float32
+	Price float64
 }
 
 func parseQuotes(jsonBlob []byte) []Quote {
 
 	type quote struct {
 		Date  int64   `json:"date"`
-		Price float32 `json:"price"`
+		Price float64 `json:"price"`
 	}
 
 	var quotes []quote
@@ -78,7 +77,7 @@ func parseQuotes(jsonBlob []byte) []Quote {
 	return res
 }
 
-func getStartEndPrice(quotes []Quote) (float32, float32) {
+func getStartEndPrice(quotes []Quote) (float64, float64) {
 	startQuote, endQuote := quotes[0], quotes[0]
 
 	for _, q := range quotes {
@@ -97,21 +96,38 @@ func getStartEndPrice(quotes []Quote) (float32, float32) {
 type Investment struct {
 	Fund      int
 	Purchased time.Time
-	shares    float32
+	shares    float64
 }
 
 func main() {
-	purchaseDate, _ := time.Parse("02.01.2006", "26.02.2014")
+	purchaseDate, _  := time.Parse("02.01.2006", "26.02.2014")
+	purchaseDate2, _ := time.Parse("02.01.2006", "09.06.2014")
+
+  var funds = map[int]string{
+      12: "Телекоммуникации и Технологии",
+      16: "Потребительский сектор",
+      29: "Глобальный Интернет",
+  }
+
 	var config = []Investment{
 		{Fund: 12, Purchased: purchaseDate, shares: 4.9607604},
 		{Fund: 29, Purchased: purchaseDate, shares: 21.8402868},
 		{Fund: 16, Purchased: purchaseDate, shares: 12.691966},
+    {Fund: 12, Purchased: purchaseDate2,shares: 17.703110},
 	}
+
+  total := .0
 
 	for _, inv := range config {
 		startDate, endDate := getPeriod(inv.Purchased)
-		startPrice, endPrice := getStartEndPrice(parseQuotes(fixJson(getJson(getUrl(12, startDate, endDate)))))
+		startPrice, endPrice := getStartEndPrice(parseQuotes(fixJson(getJson(getUrl(inv.Fund, startDate, endDate)))))
 
-		fmt.Printf("%, ...)
+    profit := (endPrice - startPrice) * inv.shares
+    total += profit
+
+    fmt.Printf("%s: %.02f\r\n", funds[inv.Fund], profit)
 	}
+
+  fmt.Print("---------------------------------------------\r\n")
+  fmt.Printf("Итого: %.02f\r\n", total)
 }
