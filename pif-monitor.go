@@ -100,34 +100,34 @@ type Investment struct {
 }
 
 func main() {
-	purchaseDate, _  := time.Parse("02.01.2006", "26.02.2014")
+	purchaseDate, _ := time.Parse("02.01.2006", "26.02.2014")
 	purchaseDate2, _ := time.Parse("02.01.2006", "09.06.2014")
 
-  var funds = map[int]string{
-      12: "Телекоммуникации и Технологии",
-      16: "Потребительский сектор",
-      29: "Глобальный Интернет",
-  }
+	var funds = map[int]string{
+		12: "Телекоммуникации и Технологии",
+		16: "Потребительский сектор",
+		29: "Глобальный Интернет",
+	}
 
 	var config = []Investment{
 		{Fund: 12, Purchased: purchaseDate, shares: 4.9607604},
 		{Fund: 29, Purchased: purchaseDate, shares: 21.8402868},
 		{Fund: 16, Purchased: purchaseDate, shares: 12.691966},
-    {Fund: 12, Purchased: purchaseDate2,shares: 17.703110},
+		{Fund: 12, Purchased: purchaseDate2, shares: 17.703110},
 	}
 
-  total := .0
+	total := .0
 
 	for _, inv := range config {
 		startDate, endDate := getPeriod(inv.Purchased)
 		startPrice, endPrice := getStartEndPrice(parseQuotes(fixJson(getJson(getUrl(inv.Fund, startDate, endDate)))))
 
-    profit := (endPrice - startPrice) * inv.shares
-    total += profit
+		profit := (endPrice - startPrice) * inv.shares
+		total += profit
 
-    fmt.Printf("%s: %.02f\r\n", funds[inv.Fund], profit)
+		fmt.Printf("%s: %.02f\r\n", funds[inv.Fund], profit)
 	}
 
-  fmt.Print("---------------------------------------------\r\n")
-  fmt.Printf("Итого: %.02f\r\n", total)
+	fmt.Print("---------------------------------------------\r\n")
+	fmt.Printf("Итого: %.02f\r\n", total)
 }
